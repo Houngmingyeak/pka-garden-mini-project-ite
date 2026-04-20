@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plantify – Plants</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              pink: {
+                primary: "#F06292",
+                light: "#F8A1C4",
+                dark: "#D81B60",
+                50: "#fdf2f6",
+                100: "#fce4ee",
+              },
+            },
+            fontFamily: {
+              display: ["Playfair Display", "serif"],
+              body: ["DM Sans", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family: "DM Sans", sans-serif;
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-12px);
+        }
+      }
+      .fade-up {
+        animation: fadeUp 0.7s ease both;
+      }
+      .float-anim {
+        animation: float 4s ease-in-out infinite;
+      }
+      .gradient-text {
+        background: linear-gradient(135deg, #f06292, #d81b60);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .plant-card {
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+      }
+      .plant-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 40px rgba(240, 98, 146, 0.25);
+      }
+      .nav-link {
+        position: relative;
+      }
+      .nav-link::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -3px;
+        width: 0;
+        height: 2px;
+        background: #f06292;
+        transition: width 0.3s ease;
+      }
+      .nav-link:hover::after,
+      .nav-link.active::after {
+        width: 100%;
+      }
+      .hero-blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+        opacity: 0.15;
+        pointer-events: none;
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #fdf2f6;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #f06292;
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-white dark:bg-gray-950 text-gray-800 dark:text-gray-100 transition-colors duration-300"
+  >
+    <!-- ── NAVBAR ── -->
+    <nav
+      id="navbar"
+      class="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-950/90 backdrop-blur-md border-b border-pink-100 dark:border-pink-dark/20 transition-all duration-300"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <a href="../index.html" class="flex items-center gap-2 group">
+            <div
+              class="w-32 h-32 flex items-center justify-center group-hover:scale-110 transition-transform"
+            >
+              <img src="../assets/pka_logo.png" alt="logo" />
+            </div>
+          </a>
+          <div class="hidden md:flex items-center gap-8">
+            <a
+              href="../index.html"
+              class="nav-link text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-pink-primary transition-colors"
+              >Home</a
+            >
+            <a
+              href="plants.html"
+              class="nav-link active text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-pink-primary transition-colors"
+              >Plants</a
+            >
+            <a
+              href="about.html"
+              class="nav-link text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-pink-primary transition-colors"
+              >About Us</a
+            >
+            <a
+              href="contact.html"
+              class="nav-link text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-pink-primary transition-colors"
+              >Contact</a
+            >
+          </div>
+          <div class="flex items-center gap-3">
+            <button
+              onclick="toggleDark()"
+              class="w-9 h-9 rounded-full flex items-center justify-center bg-pink-50 dark:bg-gray-800 hover:bg-pink-100 dark:hover:bg-gray-700 transition-colors"
+            >
+              <span id="darkIcon"><i class="fa-solid fa-moon"></i></span>
+            </button>
+            <a
+              href="../auth/login.html"
+              class="hidden sm:block text-sm font-medium text-pink-primary hover:text-pink-dark transition-colors"
+              >Login</a
+            >
+            <a
+              href="../auth/signup.html"
+              class="bg-gradient-to-r from-pink-primary to-pink-dark text-white text-sm font-semibold px-4 py-2 rounded-full hover:shadow-lg hover:scale-105 transition-all"
+              >Sign Up</a
+            >
+            <button
+              onclick="toggleMobile()"
+              class="md:hidden w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <span class="w-5 h-0.5 bg-gray-700 dark:bg-gray-200"></span
+              ><span class="w-5 h-0.5 bg-gray-700 dark:bg-gray-200"></span
+              ><span class="w-5 h-0.5 bg-gray-700 dark:bg-gray-200"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        id="mobileMenu"
+        class="md:hidden hidden border-t border-pink-100 dark:border-gray-800 bg-white dark:bg-gray-950 px-4 py-4 space-y-3"
+      >
+        <a
+          href="../index.html"
+          class="block text-sm font-medium py-2 hover:text-pink-primary"
+          >🏠 Home</a
+        >
+        <a
+          href="plants.html"
+          class="block text-sm font-medium py-2 text-pink-primary"
+          >🌿 Plants</a
+        >
+        <a
+          href="about.html"
+          class="block text-sm font-medium py-2 hover:text-pink-primary"
+          >💚 About Us</a
+        >
+        <a
+          href="contact.html"
+          class="block text-sm font-medium py-2 hover:text-pink-primary"
+          >📧 Contact</a
+        >
+        <div class="flex gap-3 pt-2">
+          <a
+            href="../auth/login.html"
+            class="flex-1 text-center text-sm font-medium text-pink-primary border border-pink-primary rounded-full py-2"
+            >Login</a
+          >
+          <a
+            href="../auth/signup.html"
+            class="flex-1 text-center text-sm font-semibold bg-gradient-to-r from-pink-primary to-pink-dark text-white rounded-full py-2"
+            >Sign Up</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <!-- ── HERO ── -->
+    <section
+      class="relative pt-24 pb-16 overflow-hidden bg-gradient-to-br from-pink-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900"
+    >
+      <div class="hero-blob w-96 h-96 bg-pink-light top-0 right-0"></div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div class="flex flex-col lg:flex-row items-center gap-12">
+          <div class="flex-1 fade-up">
+            <nav
+              class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6"
+            >
+              <a
+                href="../index.html"
+                class="hover:text-pink-primary transition-colors"
+                >Home</a
+              ><span>/</span><span class="text-pink-primary">Plants</span>
+            </nav>
+            <div
+              class="inline-flex items-center gap-2 bg-pink-primary/10 text-pink-dark dark:text-pink-light text-xs font-semibold px-4 py-2 rounded-full mb-6"
+            >
+              ✨ In Stock Now
+            </div>
+            <h1
+              class="font-display text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white leading-tight mb-6"
+            >
+              Nature Meets<br /><span class="gradient-text">Modern Living</span>
+            </h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400 max-w-lg mb-8">
+              Transform your space with curated plants designed to bring
+              elegance, calm, and life into your everyday environment.
+            </p>
+            <div class="flex gap-4">
+              <a
+                href="#shop"
+                class="bg-gradient-to-r from-pink-primary to-pink-dark text-white font-semibold px-8 py-3.5 rounded-full hover:shadow-xl hover:scale-105 transition-all"
+                >Explore Plants</a
+              >
+              <a
+                href="about.html"
+                class="text-pink-primary font-semibold hover:underline flex items-center gap-2"
+                >Learn More →</a
+              >
+            </div>
+          </div>
+          <div class="flex-1 relative flex justify-center">
+            <div
+              class="float-anim bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-2xl max-w-sm w-full"
+            >
+              <img
+                src="https://i.pinimg.com/1200x/2c/2f/3b/2c2f3b218c7df05cb64c046489ebf4d6.jpg"
+                class="w-full h-64 object-cover rounded-2xl"
+                alt="Featured Plant"
+              />
+              <div
+                class="absolute -top-3 -right-3 bg-pink-primary text-white text-xs font-bold px-3 py-1.5 rounded-full"
+              >
+                ✨ Imported
+              </div>
+              <div class="mt-4 flex items-center justify-between">
+                <div>
+                  <div class="font-semibold text-gray-800 dark:text-white">
+                    ZZ Plant
+                  </div>
+                  <div class="text-sm text-gray-500 dark:text-gray-400">
+                    Zamioculcas zamiifolia
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="text-xs text-gray-400">Starts from</div>
+                  <div class="font-bold text-pink-primary">$12.99</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SHOP SECTION ── -->
+    <section id="shop" class="py-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10">
+          <h2
+            class="font-display text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3"
+          >
+            Daily Green Picks
+          </h2>
+          <p class="text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
+            Explore handpicked plants designed to refresh your home with
+            greenery, elegance, and a touch of nature every day.
+          </p>
+        </div>
+
+        <!-- Filter + Search row -->
+        <div
+          class="flex flex-col sm:flex-row gap-4 mb-8 items-center justify-between"
+        >
+          <div class="flex flex-wrap gap-2">
+            <button
+              onclick="filterPlants(this, 'all')"
+              class="filter-btn px-5 py-2 rounded-full text-sm font-semibold bg-pink-primary text-white transition-all"
+            >
+              All
+            </button>
+            <button
+              onclick="filterPlants(this, 'indoor')"
+              class="filter-btn px-5 py-2 rounded-full text-sm font-semibold bg-white dark:bg-gray-800 border border-pink-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-pink-primary transition-all"
+            >
+              Indoor
+            </button>
+            <button
+              onclick="filterPlants(this, 'outdoor')"
+              class="filter-btn px-5 py-2 rounded-full text-sm font-semibold bg-white dark:bg-gray-800 border border-pink-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-pink-primary transition-all"
+            >
+              Outdoor
+            </button>
+            <button
+              onclick="filterPlants(this, 'succulent')"
+              class="filter-btn px-5 py-2 rounded-full text-sm font-semibold bg-white dark:bg-gray-800 border border-pink-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-pink-primary transition-all"
+            >
+              Succulents
+            </button>
+            <button
+              onclick="filterPlants(this, 'flowering')"
+              class="filter-btn px-5 py-2 rounded-full text-sm font-semibold bg-white dark:bg-gray-800 border border-pink-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-pink-primary transition-all"
+            >
+              Flowering
+            </button>
+          </div>
+          <div class="relative">
+            <input
+              type="text"
+              id="searchInput"
+              oninput="searchPlants()"
+              placeholder="Search plants..."
+              class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full px-5 py-2 text-sm w-52 outline-none focus:border-pink-primary transition-all text-gray-800 dark:text-white placeholder-gray-400"
+            />
+            <span
+              class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"
+              >🔍</span
+            >
+          </div>
+        </div>
+
+        <!-- Plants Grid -->
+        <div
+          id="plantsGrid"
+          class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6"
+        ></div>
+        <p
+          id="noResults"
+          class="hidden text-center text-gray-400 py-16 text-lg"
+        >
+          🌵 No plants found. Try a different search!
+        </p>
+      </div>
+    </section>
+
+    <!-- ── WHY CHOOSE ── -->
+    <section class="py-20 bg-pink-50 dark:bg-gray-900">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row items-center gap-12">
+          <div class="flex-1">
+            <p class="text-pink-primary font-semibold text-sm mb-2">Why us?</p>
+            <h2
+              class="font-display text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4"
+            >
+              Why Choose Plantify?
+            </h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-8">
+              Plantify helps you bring nature into your space with carefully
+              selected plants that add freshness to your home.
+            </p>
+            <a
+              href="../auth/signup.html"
+              class="inline-block bg-gradient-to-r from-pink-primary to-pink-dark text-white font-semibold px-8 py-3 rounded-full hover:shadow-lg transition-all uppercase text-sm tracking-wide"
+              >Get Started Free</a
+            >
+            <div class="grid grid-cols-3 gap-6 mt-10">
+              <div class="text-center">
+                <div
+                  class="w-10 h-10 mx-auto mb-2 bg-pink-100 dark:bg-pink-dark/20 rounded-full flex items-center justify-center text-pink-primary"
+                >
+                  🌱
+                </div>
+                <div
+                  class="text-xs font-semibold text-gray-800 dark:text-white"
+                >
+                  Fresh Plants
+                </div>
+                <div class="text-xs text-gray-400">
+                  Carefully selected quality
+                </div>
+              </div>
+              <div class="text-center">
+                <div
+                  class="w-10 h-10 mx-auto mb-2 bg-pink-100 dark:bg-pink-dark/20 rounded-full flex items-center justify-center text-pink-primary"
+                >
+                  💧
+                </div>
+                <div
+                  class="text-xs font-semibold text-gray-800 dark:text-white"
+                >
+                  Easy Care
+                </div>
+                <div class="text-xs text-gray-400">Simple for everyone</div>
+              </div>
+              <div class="text-center">
+                <div
+                  class="w-10 h-10 mx-auto mb-2 bg-pink-100 dark:bg-pink-dark/20 rounded-full flex items-center justify-center text-pink-primary"
+                >
+                  🏡
+                </div>
+                <div
+                  class="text-xs font-semibold text-gray-800 dark:text-white"
+                >
+                  Natural Style
+                </div>
+                <div class="text-xs text-gray-400">Healthy modern spaces</div>
+              </div>
+            </div>
+          </div>
+          <div class="flex-1 flex justify-center">
+            <div class="relative">
+              <div
+                class="w-72 h-72 bg-pink-100 dark:bg-pink-dark/20 rounded-full flex items-center justify-center"
+              >
+                <img
+                  src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&q=80"
+                  class="w-56 h-56 object-cover rounded-full"
+                  alt="Why Plantify"
+                />
+                <div
+                  class="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center text-lg"
+                >
+                  🌿
+                </div>
+                <div
+                  class="absolute top-1/2 -right-4 -translate-y-1/2 w-10 h-10 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center text-lg"
+                >
+                  🪴
+                </div>
+                <div
+                  class="absolute -bottom-4 left-1/2 -translate-x-1/2 w-10 h-10 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center text-lg"
+                >
+                  🌱
+                </div>
+                <div
+                  class="absolute top-1/2 -left-4 -translate-y-1/2 w-10 h-10 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center text-lg"
+                >
+                  🌺
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── GARDEN BANNER ── -->
+    <section class="py-16 bg-gradient-to-r from-pink-dark to-pink-primary">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row items-center gap-8">
+          <div
+            class="w-28 h-28 sm:w-36 sm:h-36 rounded-2xl overflow-hidden shrink-0"
+          >
+            <img
+              src="../assets/pka_logo.png"
+              class="w-full h-full object-cover"
+              alt="Garden"
+            />
+          </div>
+          <div class="text-white text-center sm:text-left">
+            <h3 class="font-display text-2xl sm:text-3xl font-bold mb-2">
+              Pka Garden
+            </h3>
+            <p class="text-white/80 max-w-lg">
+              A curated collection of vibrant plants designed to bring
+              freshness, beauty, and a calming natural atmosphere into your
+              home.
+            </p>
+          </div>
+          <div class="sm:ml-auto shrink-0">
+            <a
+              href="../auth/signup.html"
+              class="inline-block bg-white text-pink-dark font-semibold px-6 py-3 rounded-full hover:bg-pink-50 transition-colors"
+              >Join Now →</a
+            >
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FOOTER ── -->
+    <footer class="bg-gray-900 dark:bg-black text-white py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-8">
+          <div>
+            <div class="flex items-center gap-1 mb-4 w-24">
+              <img src="../assets/pka_logo.png" alt="pkalogo" />
+            </div>
+            <p class="text-gray-400 text-sm">
+              Bring nature closer to your home with fresh, beautiful plants.
+            </p>
+          </div>
+          <div>
+            <h4 class="font-semibold mb-4 text-pink-light">Quick Links</h4>
+            <ul class="space-y-2 text-sm text-gray-400">
+              <li>
+                <a
+                  href="../index.html"
+                  class="hover:text-pink-primary transition-colors"
+                  >Home</a
+                >
+              </li>
+              <li>
+                <a
+                  href="plants.html"
+                  class="hover:text-pink-primary transition-colors"
+                  >Plants</a
+                >
+              </li>
+              <li>
+                <a
+                  href="about.html"
+                  class="hover:text-pink-primary transition-colors"
+                  >About Us</a
+                >
+              </li>
+              <li>
+                <a
+                  href="contact.html"
+                  class="hover:text-pink-primary transition-colors"
+                  >Contact</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold mb-4 text-pink-light">Categories</h4>
+            <ul class="space-y-2 text-sm text-gray-400">
+              <li>
+                <a href="#" class="hover:text-pink-primary transition-colors"
+                  >Indoor Plants</a
+                >
+              </li>
+              <li>
+                <a href="#" class="hover:text-pink-primary transition-colors"
+                  >Outdoor Plants</a
+                >
+              </li>
+              <li>
+                <a href="#" class="hover:text-pink-primary transition-colors"
+                  >Succulents</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold mb-4 text-pink-light">Stay Updated</h4>
+            <div class="flex mt-3">
+              <input
+                type="email"
+                placeholder="Your email"
+                class="flex-1 bg-gray-800 text-sm px-3 py-2 rounded-l-full outline-none text-white placeholder-gray-500"
+              /><button
+                class="bg-pink-primary px-4 py-2 rounded-r-full text-sm font-semibold hover:bg-pink-dark transition-colors"
+              >
+                →
+              </button>
+            </div>
+          </div>
+        </div>
+        <div
+          class="border-t border-gray-800 pt-6 text-center text-gray-500 text-sm"
+        >
+          © 2026 Plantify. All rights reserved.
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      const plants = [
+        {
+          name: "Snake Plant",
+          price: 18.99,
+          cat: "indoor",
+          img: "https://i.pinimg.com/736x/5d/fa/cf/5dfacf873a809244fd6e6cb6e0d4947b.jpg",
+          badge: "Popular",
+        },
+        {
+          name: "Cactus Mix",
+          price: 9.99,
+          cat: "succulent",
+          img: "https://i.pinimg.com/1200x/49/9f/da/499fdae9ca18aea0a85b04dbe74704d9.jpg",
+          badge: "Low Care",
+        },
+        {
+          name: "Peace Lily",
+          price: 14.99,
+          cat: "indoor",
+          img: "https://i.pinimg.com/736x/e1/42/31/e142317ff2511df076eaf391af8ecdd4.jpg",
+          badge: "Sale",
+        },
+        {
+          name: "Monstera",
+          price: 24.99,
+          cat: "indoor",
+          img: "https://i.pinimg.com/1200x/17/ab/8d/17ab8da0c4b8c3dcda94d6f077ae4db2.jpg",
+          badge: "Trending",
+        },
+        {
+          name: "Bird of Paradise",
+          price: 34.99,
+          cat: "outdoor",
+          img: "https://i.pinimg.com/736x/8d/51/40/8d5140ffe4160b60eca78e8f27269c4b.jpg",
+          badge: "Exotic",
+        },
+        {
+          name: "Hanging Fern",
+          price: 12.99,
+          cat: "outdoor",
+          img: "https://i.pinimg.com/1200x/bf/3e/3a/bf3e3a9ad70b9d5af03d488fca0b98b3.jpg",
+          badge: "",
+        },
+        {
+          name: "Aloe Vera",
+          price: 8.99,
+          cat: "succulent",
+          img: "https://i.pinimg.com/736x/01/fb/0c/01fb0cac39b29b5aa93513adaf813fbb.jpg",
+          badge: "Medicinal",
+        },
+        {
+          name: "Rose Bush",
+          price: 19.99,
+          cat: "flowering",
+          img: "https://i.pinimg.com/736x/26/18/eb/2618eb2823b8d7686155033ec8ef09d2.jpg",
+          badge: "Fragrant",
+        },
+        {
+          name: "ZZ Plant",
+          price: 22.99,
+          cat: "indoor",
+          img: "https://i.pinimg.com/1200x/6d/49/ef/6d49ef4f1f25e02dcdd340a157675a48.jpg",
+          badge: "",
+        },
+        {
+          name: "Orchid",
+          price: 27.99,
+          cat: "flowering",
+          img: "https://i.pinimg.com/736x/4b/b9/3a/4bb93a70aa74322492407c04b5f2f6fc.jpg",
+          badge: "Elegant",
+        },
+        {
+          name: "Rubber Plant",
+          price: 16.99,
+          cat: "indoor",
+          img: "https://i.pinimg.com/1200x/6b/3f/24/6b3f248a61f82dc65ef0c4f27b3babdb.jpg",
+          badge: "",
+        },
+        {
+          name: "Lavender",
+          price: 11.99,
+          cat: "flowering",
+          img: "https://i.pinimg.com/736x/4b/4e/ee/4b4eeeb60913406ec94d7bf34e230730.jpg",
+          badge: "Aromatic",
+        },
+      ];
+
+      let currentFilter = "all";
+
+      function renderPlants(list) {
+        const grid = document.getElementById("plantsGrid");
+        const noR = document.getElementById("noResults");
+        if (!list.length) {
+          grid.innerHTML = "";
+          noR.classList.remove("hidden");
+          return;
+        }
+        noR.classList.add("hidden");
+        grid.innerHTML = list
+          .map(
+            (p) => `
+      <div class="plant-card bg-white dark:bg-gray-900 border border-pink-100 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm group">
+        <div class="relative overflow-hidden h-44">
+          <img src="${p.img}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"/>
+          ${p.badge ? `<span class="absolute top-2 left-2 bg-pink-primary text-white text-xs font-bold px-2 py-1 rounded-full">${p.badge}</span>` : ""}
+          <button class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 dark:bg-gray-900/90 flex items-center justify-center text-gray-400 hover:text-pink-primary transition-colors shadow-sm text-sm">♡</button>
+        </div>
+        <div class="p-4">
+          <h3 class="font-semibold text-gray-800 dark:text-white text-sm">${p.name}</h3>
+          <div class="flex items-center justify-between mt-2">
+            <span class="text-pink-primary font-bold">$${p.price.toFixed(2)}</span>
+            <button class="bg-pink-primary text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-pink-dark transition-colors">+ Add</button>
+          </div>
+        </div>
+      </div>
+    `,
+          )
+          .join("");
+      }
+
+      function filterPlants(btn, cat) {
+        currentFilter = cat;
+        document.querySelectorAll(".filter-btn").forEach((b) => {
+          b.className =
+            "filter-btn px-5 py-2 rounded-full text-sm font-semibold bg-white dark:bg-gray-800 border border-pink-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-pink-primary transition-all";
+        });
+        btn.className =
+          "filter-btn px-5 py-2 rounded-full text-sm font-semibold bg-pink-primary text-white transition-all";
+        applyFilters();
+      }
+
+      function searchPlants() {
+        applyFilters();
+      }
+
+      function applyFilters() {
+        const q = document.getElementById("searchInput").value.toLowerCase();
+        let list =
+          currentFilter === "all"
+            ? plants
+            : plants.filter((p) => p.cat === currentFilter);
+        if (q) list = list.filter((p) => p.name.toLowerCase().includes(q));
+        renderPlants(list);
+      }
+      // ── Theme persistence ──
+      (function () {
+        const isDark = localStorage.getItem("theme") === "dark";
+        if (isDark) document.documentElement.classList.add("dark");
+        window.addEventListener("DOMContentLoaded", () => {
+          const icon = document.getElementById("darkIcon");
+          if (icon)
+            icon.innerHTML = isDark
+              ? '<i class="fa-solid fa-sun"></i>'
+              : '<i class="fa-solid fa-moon"></i>';
+        });
+      })();
+
+      function toggleDark() {
+        document.documentElement.classList.toggle("dark");
+        const isDark = document.documentElement.classList.contains("dark");
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+        const icon = document.getElementById("darkIcon");
+        if (icon)
+          icon.innerHTML = isDark
+            ? '<i class="fa-solid fa-sun"></i>'
+            : '<i class="fa-solid fa-moon"></i>';
+      }
+
+      function toggleMobile() {
+        document.getElementById("mobileMenu").classList.toggle("hidden");
+      }
+      function toggleLang() {
+        document.getElementById("langMenu").classList.toggle("hidden");
+      }
+      function setLang(c, f) {
+        document.getElementById("langLabel").textContent = c;
+        document.getElementById("langFlag").textContent = f;
+        document.getElementById("langMenu").classList.add("hidden");
+      }
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest("#langToggle") && !e.target.closest("#langMenu"))
+          document.getElementById("langMenu").classList.add("hidden");
+      });
+      window.addEventListener("scroll", () => {
+        document
+          .getElementById("navbar")
+          .classList.toggle("shadow-md", window.scrollY > 20);
+      });
+
+      // Init
+      renderPlants(plants);
+    </script>
+  </body>
+</html>
